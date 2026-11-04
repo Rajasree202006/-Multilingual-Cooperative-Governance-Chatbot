@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multilingual Cooperative Governance & Legal Assistance Chatbot</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Load knowledge base script for instant static/offline execution without CORS limits -->
+    <script src="data.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --secondary: #059669;
+            --secondary-light: #ecfdf5;
+            --dark: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+            --white: #ffffff;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #f0f4f9 0%, #f8fafc 100%);
+            color: var(--slate-800);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        button, input, textarea, select {
+            font-family: inherit;
+        }
+
+        /* Header */
+        .site-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%);
+            color: var(--white);
+            padding: 24px 5%;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .brand-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            font-size: 32px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 10px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text p {
+            font-size: 13px;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .live-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .lang-select-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 6px 4px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .lang-select-box label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #cbd5e1;
+        }
+
+        .lang-select-box select {
+            background: var(--white);
+            color: var(--slate-800);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Main Container */
+        .main-container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 32px auto 48px;
+            flex: 1;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--slate-200);
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+        }
+
+        .stat-meta h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--slate-800);
+        }
+
+        .stat-meta p {
+            font-size: 12px;
+            color: var(--slate-600);
+            font-weight: 500;
+        }
+
+        /* Section Cards */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--slate-200);
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: var(--white);
+        }
+
+        .card-header h2 {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--slate-800);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: var(--slate-600);
+        }
+
+        /* Chat Card Specific */
+        .chat-body {
+            background: var(--slate-50);
+        }
+
+        .chat-stream {
+            height: 460px;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            scroll-behavior: smooth;
+        }
+
+        .message-bubble {
+            display: flex;
+            flex-direction: column;
+            max-width: 82%;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-bubble {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .bot-bubble {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .bubble-meta {
+            font-size: 11px;
+            color: var(--slate-600);
+            margin-bottom: 4px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bubble-content {
+            padding: 14px 18px;
+            border-radius: var(--radius-lg);
+            font-size: 14.5px;
+            line-height: 1.6;
+            word-break: break-word;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-bubble .bubble-content {
+            background: var(--primary);
+            color: var(--white);
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-bubble .bubble-content {
+            background: var(--white);
+            color: var(--slate-800);
+            border: 1px solid var(--slate-200);
+            border-bottom-left-radius: 4px;
+        }
+
+        .bubble-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .action-chip {
+            background: var(--slate-100);
+            border: 1px solid var(--slate-200);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--slate-700);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-chip:hover {
+            background: var(--slate-200);
+            color: var(--dark);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+
+        /* Chat Input Box */
+        .chat-controls {
+            padding: 18px 24px;
+            background: var(--white);
+            border-top: 1px solid var(--slate-200);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--slate-50);
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+            background: var(--white);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px 22px;
+            border-radius: var(--radius-md);
+            font-size: 14.5px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+        }
+
+        .btn-voice {
+            background: var(--slate-700);
+            color: var(--white);
+        }
+
+        .btn-voice:hover {
+            background: var(--slate-800);
+        }
+
+        .btn-voice.recording {
+            background: var(--danger);
+            animation: pulse-recording 1.2s infinite;
+        }
+
+        @keyframes pulse-recording {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .chat-footer {
+            padding: 10px 24px 16px;
+            background: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12.5px;
+            color: var(--slate-600);
+            border-top: 1px dashed var(--slate-200);
+        }
+
+        /* AI Mode Toggle */
+        .ai-banner {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            margin: 0 24px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ai-banner-text {
+            font-size: 13px;
+            color: #166534;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .gemini-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .gemini-input-group input {
+            padding: 6px 10px;
+            font-size: 12px;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            outline: none;
+            width: 170px;
+        }
+
+        /* Sample Questions */
+        .samples-card {
+            padding: 26px 28px;
+        }
+
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .sample-chip {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--slate-800);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sample-chip:hover {
+            background: var(--primary-light);
+            border-color: #93c5fd;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sample-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        /* Forms (Enquiry & Status) */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            padding: 24px 28px;
+        }
+
+        .form-full {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--slate-700);
+        }
+
+        .form-control {
+            padding: 12px 14px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            outline: none;
+            background: var(--slate-50);
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            background: var(--white);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            padding: 0 28px 24px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Status Check */
+        .status-box {
+            padding: 24px 28px;
+        }
+
+        .status-input-row {
+            display: flex;
+            gap: 12px;
+            max-width: 600px;
+        }
+
+        .result-container {
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            display: none;
+        }
+
+        .result-success {
+            display: block;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .result-error {
+            display: block;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        /* Timeline for enquiry */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .timeline-step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .timeline-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .timeline-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--slate-700);
+        }
+
+        /* Modal / Drawer */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--slate-600);
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--dark);
+            color: #94a3b8;
+            padding: 36px 5%;
+            font-size: 13.5px;
+            margin-top: auto;
+            border-top: 1px solid var(--slate-800);
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 18px;
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-full {
+                grid-column: span 1;
+            }
+            .chat-controls {
+                flex-wrap: wrap;
+            }
+            .chat-input {
+                flex-basis: 100%;
+            }
+            .status-input-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="brand-title">
+                <div class="brand-icon">🏛️</div>
+                <div class="brand-text">
+                    <h1>Multilingual Cooperative Governance Chatbot</h1>
+                    <p>AI Legal & Governance Assistance for Primary Agricultural Cooperative Societies</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="live-status-pill">
+                    <span class="pulse-dot"></span> Live Assistant
+                </div>
+
+                <div class="lang-select-box">
+                    <label for="languageSelect">Language</label>
+                    <select id="languageSelect">
+                        <option value="English">English</option>
+                        <option value="Tamil">Tamil (தமிழ்)</option>
+                        <option value="Hindi">Hindi (हिन्दी)</option>
+                        <option value="Telugu">Telugu (తెలుగు)</option>
+                        <option value="Malayalam">Malayalam (മലയാളം)</option>
+                        <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
+                        <option value="Bengali">Bengali (বাংলা)</option>
+                        <option value="Marathi">Marathi (मराठी)</option>
+                        <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+                        <option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
+                        <option value="Odia">Odia (ଓଡ଼ିଆ)</option>
+                        <option value="Assamese">Assamese (অসমীয়া)</option>
+                    </select>
+                </div>
+
+                <button type="button" class="action-chip" id="openAdminModalBtn" style="padding: 8px 14px; font-size: 13px;">
+                    🛡️ Admin Records
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon">📜</div>
+                <div class="stat-meta">
+                    <h4>180+</h4>
+                    <p>Verified Legal Articles</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🇮🇳</div>
+                <div class="stat-meta">
+                    <h4>12</h4>
+                    <p>Supported Indian Languages</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎙️</div>
+                <div class="stat-meta">
+                    <h4>Voice AI</h4>
+                    <p>Speech-to-Text &amp; TTS</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-meta">
+                    <h4>Zero Delay</h4>
+                    <p>Instant Offline/Cloud RAG</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Assistant Card -->
+        <div class="card chat-card">
+            <div class="card-header">
+                <div>
+                    <h2>💬 Interactive Governance Assistant</h2>
+                    <p id="chatSubTitle">Selected Language: English | Powered by Indian Cooperative Law Database</p>
+                </div>
+                <button type="button" class="action-chip" id="clearChatBtn">
+                    🗑️ Clear Chat
+                </button>
+            </div>
+
+            <!-- Optional Gemini AI Banner -->
+            <div class="ai-banner">
+                <div class="ai-banner-text">
+                    ✨ <strong>Live AI Mode:</strong> Built-in 180+ Knowledge Base active. Optional Gemini key for open-ended legal advisory:
+                </div>
+                <div class="gemini-input-group">
+                    <input type="password" id="geminiApiKeyInput" placeholder="Enter Gemini API Key (optional)" title="Optional: Paste Gemini key for live LLM responses">
+                    <button type="button" class="action-chip" id="saveApiKeyBtn">Apply</button>
+                </div>
+            </div>
+
+            <div class="chat-body">
+                <div class="chat-stream" id="chatStream">
+                    <div class="message-bubble bot-bubble">
+                        <div class="bubble-meta">🤖 COOPERATIVE BOT</div>
+                        <div class="bubble-content" id="welcomeMessage">
+                            Hello! Welcome to the Multilingual Cooperative Society Governance &amp; Legal Assistant. Ask any question regarding PACS, KCC loans, audit rules, elections, or member rights!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-controls">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Type your question here (e.g. What is a PACS society?)..."
+                        autocomplete="off"
+                    >
+                    <button type="button" class="btn btn-voice" id="voiceBtn" title="Speak question via microphone">
+                        🎤 Voice
+                    </button>
+                    <button type="button" class="btn btn-primary" id="sendBtn">
+                        Send Question ➔
+                    </button>
+                </div>
+
+                <div class="chat-footer">
+                    <span id="chatStatusText">Status: Ready</span>
+                    <button type="button" class="action-chip" id="speakLastAnswerBtn">
+                        🔊 Read Last Answer Aloud
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Sample Questions -->
+        <div class="card samples-card">
+            <h2>💡 Quick Suggested Questions</h2>
+            <p style="color: var(--slate-600); font-size: 13.5px; margin-top: 4px;">
+                Click any topic below to automatically ask the chatbot in <span id="sampleLangLabel" style="font-weight:700; color:var(--primary);">English</span>:
+            </p>
+
+            <div class="samples-grid" id="samplesContainer">
+                <!-- Dynamically loaded questions based on language -->
+            </div>
+        </div>
+
+        <!-- Submit Enquiry -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>📝 Submit Official Member Enquiry / Grievance</h2>
+                    <p>Have an unaddressed issue with your cooperative society or registrar? Submit for review.</p>
+                </div>
+            </div>
+
+            <form id="enquiryForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="enquiryName">Full Name / Member ID</label>
+                        <input type="text" id="enquiryName" class="form-control" placeholder="e.g. Rajesh Kumar (Member #402)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="enquiryLanguage">Preferred Language</label>
+                        <select id="enquiryLanguage" class="form-control">
+                            <option value="English">English</option>
+                            <option value="Tamil">Tamil (தமிழ்)</option>
+                            <option value="Hindi">Hindi (हिन्दी)</option>
+                            <option value="Telugu">Telugu (తెలుగు)</option>
+                            <option value="Malayalam">Malayalam (മലയാളം)</option>
+                            <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
+                            <option value="Bengali">Bengali (বাংলা)</option>
+                            <option value="Marathi">Marathi (मराठी)</option>
+                            <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+                            <option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
+                            <option value="Odia">Odia (ଓଡ଼ିଆ)</option>
+                            <option value="Assamese">Assamese (অসমীয়া)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-full">
+                        <label for="enquiryQuestion">Enquiry / Grievance Details</label>
+                        <textarea id="enquiryQuestion" class="form-control" placeholder="Describe your question or issue in detail..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="enquirySubmitBtn">
+                        Submit Official Enquiry ➔
+                    </button>
+                </div>
+
+                <div id="enquiryResultBox" class="result-container" style="margin: 0 28px 24px;"></div>
+            </form>
+        </div>
+
+        <!-- Track Enquiry Status -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2>🔎 Track Enquiry Status</h2>
+                    <p>Enter your generated Enquiry ID to verify review progress by the District Cooperative Registrar.</p>
+                </div>
+            </div>
+
+            <div class="status-box">
+                <div class="status-input-row">
+                    <input type="text" id="trackInput" class="form-control" placeholder="e.g. ENQ-2026-8941">
+                    <button type="button" class="btn btn-primary" id="trackBtn">
+                        Check Status
+                    </button>
+                </div>
+
+                <div id="trackResultBox" class="result-container">
+                    <div id="trackResultDetails"></div>
+                    <div class="timeline">
+                        <div class="timeline-step">
+                            <div class="timeline-dot">1</div>
+                            <div class="timeline-label">Registered</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot" style="background:#3b82f6;">2</div>
+                            <div class="timeline-label">Under Review</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-dot" style="background:#94a3b8;">3</div>
+                            <div class="timeline-label">Advisory Issued</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Admin Drawer Modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>🛡️ Cooperative Registry &amp; Admin Records</h3>
+                <button type="button" class="close-btn" id="closeAdminModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13.5px; color: var(--slate-600); margin-bottom: 16px;">
+                    Below are the member enquiries logged in this browser / session. If connected to a Flask server, full database management is available at <code>/admin/login</code>.
+                </p>
+                <div id="adminEnquiryList" style="display:flex; flex-direction:column; gap:12px;">
+                    <!-- List populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <strong>Multilingual Cooperative Governance Chatbot</strong> &bull; Indian Cooperative Assistance
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/Rajasree202006/-Multilingual-Cooperative-Governance-Chatbot" target="_blank" rel="noopener">GitHub Source</a>
+                <a href="#chatStream">Chat Assistant</a>
+                <a href="#enquiryForm">Submit Grievance</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core App Logic -->
+    <script>
+        // Pre-loaded dynamic sample questions
+        const SAMPLE_QUESTIONS = {"English": [{"question": "What is a cooperative society?", "category": "General"}, {"question": "What are the main principles of a cooperative society?", "category": "General"}, {"question": "What are the types of cooperative societies?", "category": "Types"}, {"question": "Who can become a member of a cooperative society?", "category": "Membership"}, {"question": "How can I become a member of a cooperative society?", "category": "Membership"}, {"question": "What is a cooperative by-law?", "category": "By-Laws"}, {"question": "What is the role of the board of directors?", "category": "Governance"}, {"question": "What is an annual general meeting?", "category": "Meetings"}], "Tamil": [{"question": "கூட்டுறவு சங்கம் என்றால் என்ன?", "category": "General"}, {"question": "கூட்டுறவு சங்கத்தின் முக்கிய கொள்கைகள் என்ன?", "category": "General"}, {"question": "கூட்டுறவு சங்கங்களின் வகைகள் என்ன?", "category": "Types"}, {"question": "கூட்டுறவு சங்கத்தில் யார் உறுப்பினராக சேரலாம்?", "category": "Membership"}, {"question": "கூட்டுறவு சங்கத்தில் எப்படி உறுப்பினராக சேரலாம்?", "category": "Membership"}, {"question": "கூட்டுறவு சங்கத்தின் துணை விதிகள் என்றால் என்ன?", "category": "By-Laws"}, {"question": "நிர்வாக குழுவின் பங்கு என்ன?", "category": "Governance"}, {"question": "ஆண்டு பொதுக்கூட்டம் என்றால் என்ன?", "category": "Meetings"}], "Hindi": [{"question": "सहकारी समिति क्या है?", "category": "General"}, {"question": "सहकारी समिति के मुख्य सिद्धांत क्या हैं?", "category": "General"}, {"question": "सहकारी समितियों के प्रकार क्या हैं?", "category": "Types"}, {"question": "सहकारी समिति का सदस्य कौन बन सकता है?", "category": "Membership"}, {"question": "मैं सहकारी समिति का सदस्य कैसे बन सकता हूं?", "category": "Membership"}, {"question": "सहकारी समिति के उपनियम क्या हैं?", "category": "By-Laws"}, {"question": "प्रबंध समिति की भूमिका क्या है?", "category": "Governance"}, {"question": "वार्षिक आम बैठक क्या है?", "category": "Meetings"}], "Telugu": [{"question": "సహకార సంఘం అంటే ఏమిటి?", "category": "General"}, {"question": "సహకార సంఘం యొక్క ప్రధాన సూత్రాలు ఏమిటి?", "category": "General"}, {"question": "సహకార సంఘాల రకాలు ఏమిటి?", "category": "Types"}, {"question": "సహకార సంఘంలో ఎవరు సభ్యులుగా చేరవచ్చు?", "category": "Membership"}, {"question": "సహకార సంఘంలో నేను ఎలా సభ్యుడిగా చేరగలను?", "category": "Membership"}, {"question": "సహకార సంఘం ఉపనియమం అంటే ఏమిటి?", "category": "By-Laws"}, {"question": "డైరెక్టర్ల బోర్డు పాత్ర ఏమిటి?", "category": "Governance"}, {"question": "వార్షిక సాధారణ సమావేశం అంటే ఏమిటి?", "category": "Meetings"}], "Malayalam": [{"question": "സഹകരണ സംഘം എന്താണ്?", "category": "General"}, {"question": "സഹകരണ സംഘത്തിന്റെ പ്രധാന തത്വങ്ങൾ എന്തൊക്കെയാണ്?", "category": "General"}, {"question": "സഹകരണ സംഘങ്ങളുടെ തരങ്ങൾ എന്തൊക്കെയാണ്?", "category": "Types"}, {"question": "ആർക്കാണ് സഹകരണ സംഘത്തിൽ അംഗമാകാൻ കഴിയുന്നത്?", "category": "Membership"}, {"question": "ഞാൻ എങ്ങനെ സഹകരണ സംഘത്തിൽ അംഗമാകാം?", "category": "Membership"}, {"question": "സഹകരണ സംഘത്തിന്റെ ഉപനിയമം എന്താണ്?", "category": "By-Laws"}, {"question": "ഡയറക്ടർ ബോർഡിന്റെ പങ്ക് എന്താണ്?", "category": "Governance"}, {"question": "വാർഷിക പൊതുയോഗം എന്താണ്?", "category": "Meetings"}], "Kannada": [{"question": "ಸಹಕಾರಿ ಸಂಘ ಎಂದರೇನು?", "category": "General"}, {"question": "ಸಹಕಾರಿ ಸಂಘದ ಮುಖ್ಯ ತತ್ವಗಳು ಯಾವುವು?", "category": "General"}, {"question": "ಸಹಕಾರಿ ಸಂಘಗಳ ವಿಧಗಳು ಯಾವುವು?", "category": "Types"}, {"question": "ಯಾರು ಸಹಕಾರಿ ಸಂಘದ ಸದಸ್ಯರಾಗಬಹುದು?", "category": "Membership"}, {"question": "ನಾನು ಸಹಕಾರಿ ಸಂಘದ ಸದಸ್ಯನಾಗುವುದು ಹೇಗೆ?", "category": "Membership"}, {"question": "ಸಹಕಾರಿ ಸಂಘದ ಉಪನಿಯಮ ಎಂದರೇನು?", "category": "By-Laws"}, {"question": "ನಿರ್ದೇಶಕರ ಮಂಡಳಿಯ ಪಾತ್ರವೇನು?", "category": "Governance"}, {"question": "ವಾರ್ಷಿಕ ಸಾಮಾನ್ಯ ಸಭೆ ಎಂದರೇನು?", "category": "Meetings"}], "Bengali": [{"question": "সমবায় সমিতি কী?", "category": "General"}, {"question": "সমবায় সমিতির প্রধান নীতিগুলি কী কী?", "category": "General"}, {"question": "সমবায় সমিতির ধরন কী কী?", "category": "Types"}, {"question": "কে সমবায় সমিতির সদস্য হতে পারে?", "category": "Membership"}, {"question": "আমি কীভাবে সমবায় সমিতির সদস্য হতে পারি?", "category": "Membership"}, {"question": "সমবায় সমিতির উপবিধি কী?", "category": "By-Laws"}, {"question": "পরিচালনা পর্ষদের ভূমিকা কী?", "category": "Governance"}, {"question": "বার্ষিক সাধারণ সভা কী?", "category": "Meetings"}], "Marathi": [{"question": "सहकारी संस्था म्हणजे काय?", "category": "General"}, {"question": "सहकारी संस्थेची मुख्य तत्त्वे कोणती आहेत?", "category": "General"}, {"question": "सहकारी संस्थांचे प्रकार कोणते आहेत?", "category": "Types"}, {"question": "सहकारी संस्थेचा सदस्य कोण होऊ शकतो?", "category": "Membership"}, {"question": "मी सहकारी संस्थेचा सदस्य कसा होऊ शकतो?", "category": "Membership"}, {"question": "सहकारी संस्थेचे उपनियम म्हणजे काय?", "category": "By-Laws"}, {"question": "संचालक मंडळाची भूमिका काय आहे?", "category": "Governance"}, {"question": "वार्षिक सर्वसाधारण सभा म्हणजे काय?", "category": "Meetings"}], "Gujarati": [{"question": "સહકારી મંડળી શું છે?", "category": "General"}, {"question": "સહકારી મંડળીના મુખ્ય સિદ્ધાંતો કયા છે?", "category": "General"}, {"question": "સહકારી મંડળીઓના પ્રકારો કયા છે?", "category": "Types"}, {"question": "સહકારી મંડળીના સભ્ય કોણ બની શકે?", "category": "Membership"}, {"question": "હું સહકારી મંડળીનો સભ્ય કેવી રીતે બની શકું?", "category": "Membership"}, {"question": "સહકારી મંડળીના ઉપનિયમો શું છે?", "category": "By-Laws"}, {"question": "સંચાલક મંડળની ભૂમિકા શું છે?", "category": "Governance"}, {"question": "વાર્ષિક સામાન્ય સભા શું છે?", "category": "Meetings"}], "Punjabi": [{"question": "ਸਹਿਕਾਰੀ ਸਭਾ ਕੀ ਹੈ?", "category": "General"}, {"question": "ਸਹਿਕਾਰੀ ਸਭਾ ਦੇ ਮੁੱਖ ਸਿਧਾਂਤ ਕੀ ਹਨ?", "category": "General"}, {"question": "ਸਹਿਕਾਰੀ ਸਭਾਵਾਂ ਦੀਆਂ ਕਿਸਮਾਂ ਕੀ ਹਨ?", "category": "Types"}, {"question": "ਸਹਿਕਾਰੀ ਸਭਾ ਦਾ ਮੈਂਬਰ ਕੌਣ ਬਣ ਸਕਦਾ ਹੈ?", "category": "Membership"}, {"question": "ਮੈਂ ਸਹਿਕਾਰੀ ਸਭਾ ਦਾ ਮੈਂਬਰ ਕਿਵੇਂ ਬਣ ਸਕਦਾ ਹਾਂ?", "category": "Membership"}, {"question": "ਸਹਿਕਾਰੀ ਸਭਾ ਦੇ ਉਪਨਿਯਮ ਕੀ ਹਨ?", "category": "By-Laws"}, {"question": "ਡਾਇਰੈਕਟਰਾਂ ਦੇ ਬੋਰਡ ਦੀ ਭੂਮਿਕਾ ਕੀ ਹੈ?", "category": "Governance"}, {"question": "ਸਾਲਾਨਾ ਆਮ ਮੀਟਿੰਗ ਕੀ ਹੈ?", "category": "Meetings"}], "Odia": [{"question": "ସମବାୟ ସମିତି କ'ଣ?", "category": "General"}, {"question": "ସମବାୟ ସମିତିର ମୁଖ୍ୟ ସିଦ୍ଧାନ୍ତ କଣ?", "category": "General"}, {"question": "ସମବାୟ ସମିତିର ପ୍ରକାର କଣ?", "category": "Types"}, {"question": "କିଏ ସମବାୟ ସମିତିର ସଦସ୍ୟ ହୋଇପାରିବେ?", "category": "Membership"}, {"question": "ମୁଁ ସମବାୟ ସମିତିର ସଦସ୍ୟ କିପରି ହୋଇପାରିବି?", "category": "Membership"}, {"question": "ସମବାୟ ସମିତିର ଉପନିୟମ କ'ଣ?", "category": "By-Laws"}, {"question": "ପରିଚାଳନା ବୋର୍ଡର ଭୂମିକା କଣ?", "category": "Governance"}, {"question": "ବାର୍ଷିକ ସାଧାରଣ ସଭା କ'ଣ?", "category": "Meetings"}], "Assamese": [{"question": "সমবায় সমিতি কি?", "category": "General"}, {"question": "সমবায় সমিতিৰ মুখ্য নীতিসমূহ কি কি?", "category": "General"}, {"question": "সমবায় সমিতিৰ প্ৰকাৰসমূহ কি কি?", "category": "Types"}, {"question": "কোনে সমবায় সমিতিৰ সদস্য হ'ব পাৰে?", "category": "Membership"}, {"question": "মই সমবায় সমিতিৰ সদস্য কেনেকৈ হ'ব পাৰোঁ?", "category": "Membership"}, {"question": "সমবায় সমিতিৰ উপবিধি কি?", "category": "By-Laws"}, {"question": "পৰিচালনা ব'ৰ্ডৰ ভূমিকা কি?", "category": "Governance"}, {"question": "বাৰ্ষিক সাধাৰণ সভা কি?", "category": "Meetings"}]};
+
+        // Important multilingual keywords from Python backend
+        const IMPORTANT_KEYWORDS = [
+            "pacs", "cooperative", "society", "audit", "membership", "member",
+            "bylaw", "rules", "credit", "loan", "agriculture", "government",
+            "கூட்டுறவு", "சங்கம்", "உறுப்பினர்", "தணிக்கை", "விதிமுறை", "கடன்", "விவசாயம்",
+            "सहकारी", "समिति", "सदस्य", "ऑडिट", "नियम", "ऋण", "कृषि",
+            "సహకార", "సంఘం", "సభ్యుడు", "ఆడిట్", "నియమాలు", "రుణం",
+            "സഹകരണ", "സംഘം", "അംഗം", "ഓഡിറ്റ്", "നിയമങ്ങൾ", "വായ്പ",
+            "ಸಹಕಾರಿ", "ಸಂಘ", "ಸದಸ್ಯ", "ಲೆಕ್ಕಪರಿಶೋಧನೆ", "ನಿಯಮಗಳು", "ಸಾಲ",
+            "সমবায়", "সমিতি", "সদস্য", "অডিট", "নিয়ম", "ঋণ",
+            "सहकारी", "संस्था", "सभासद", "लेखापरीक्षण", "नियम", "कर्ज",
+            "સહકારી", "મંડળી", "સભ્ય", "ઓડિટ", "નિયમો", "ધિરાણ",
+            "ਸਹਿਕਾਰੀ", "ਸਭਾ", "ਮੈਂਬਰ", "ਆਡਿਟ", "ਨਿਯਮ", "ਕਰਜ਼ਾ",
+            "ସମବାୟ", "ସମିତି", "ସଭ୍ୟ", "ଅଡିଟ", "ନିୟମ", "ଋଣ",
+            "সমবায়", "সমিতি", "সদস্য", "অডিট", "নিয়ম", "ঋণ"
+        ];
+
+        const WELCOME_MESSAGES = {
+            "English": "Hello! Welcome to the Multilingual Cooperative Society Governance & Legal Assistant. Ask any question regarding PACS, KCC loans, audit rules, elections, or member rights!",
+            "Tamil": "வணக்கம்! கூட்டுறவு சங்க ஆட்சி மற்றும் சட்ட உதவிக்கு வரவேற்கிறோம். தொடக்க வேளாண்மை கூட்டுறவு கடன் சங்கங்கள் (PACS), கேசிசி கடன், தணிக்கை விதிகள், தேர்தல் அல்லது உறுப்பினர் உரிமைகள் பற்றி எந்த கேள்வியும் கேளுங்கள்!",
+            "Hindi": "नमस्ते! बहुभाषी सहकारी शासन और कानूनी सहायता में आपका स्वागत है। पैक्स (PACS), केसीसी ऋण (4% ब्याज), ऑडिट नियम, चुनाव या सदस्य अधिकारों के बारे में कोई भी प्रश्न पूछें!",
+            "Telugu": "నమస్కారం! బహుభాషా సహకార పాలన మరియు చట్టపరమైన సహాయానికి స్వాగతం. PACS, KCC రుణాలు, ఆడిట్ నియమాలు, ఎన్నికలు లేదా సభ్యుల హక్కుల గురించి ఏదైనా ప్రశ్న అడగండి!",
+            "Malayalam": "നമസ്കാരം! ബഹുഭാഷാ സഹകരണ ഭരണ, നിയമ സഹായ ചാറ്റ്ബോട്ടിലേക്ക് സ്വാഗതം. PACS, KCC വായ്പകൾ, ഓഡിറ്റ് നിയമങ്ങൾ, തിരഞ്ഞെടുപ്പുകൾ അല്ലെങ്കിൽ അംഗങ്ങളുടെ അവകാശങ്ങൾ എന്നിവയെക്കുറിച്ച് ചോദിക്കൂ!",
+            "Kannada": "ನಮಸ್ಕಾರ! ಬಹುಭಾಷಾ ಸಹಕಾರಿ ಆಡಳಿತ ಮತ್ತು ಕಾನೂನು ನೆರವಿಗೆ ಸುಸ್ವಾಗತ. PACS, KCC ಸಾಲಗಳು, ಆಡಿಟ್ ನಿಯಮಗಳು, ಚುನಾವಣೆಗಳು ಅಥವಾ ಸದಸ್ಯರ ಹಕ್ಕುಗಳ ಬಗ್ಗೆ ಯಾವುದೇ ಪ್ರಶ್ನೆಯನ್ನು ಕೇಳಿ!",
+            "Bengali": "নমস্কার! বহুভাষিক সমবায় প্রশাসন ও আইনি সহায়তায় স্বাগতম। PACS, KCC ঋণ, অডিট নিয়ম, নির্বাচন বা সদস্যদের অধিকার সম্পর্কিত যেকোনো প্রশ্ন জিজ্ঞাসা করুন!",
+            "Marathi": "नमस्कार! बहुभाषिक सहकारी प्रशासन आणि कायदेशीर सहाय्यामध्ये आपले स्वागत आहे. PACS, KCC कर्ज, ऑडिट नियम, निवडणुका किंवा सभासदांच्या हक्कांबद्दल कोणताही प्रश्न विचारा!",
+            "Gujarati": "નમસ્તે! બહુભાષી સહકારી શાસન અને કાનૂની સહાયતામાં આપનું સ્વાગત છે. PACS, KCC લોન, ઓડિટ નિયમો, ચૂંટણી અથવા સભ્યોના અધિકારો વિશે કોઈપણ પ્રશ્ન પૂછો!",
+            "Punjabi": "ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਬਹੁ-ਭਾਸ਼ਾਈ ਸਹਿਕਾਰੀ ਸ਼ਾਸਨ ਅਤੇ ਕਾਨੂੰਨੀ ਸਹਾਇਤਾ ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ। PACS, KCC ਕਰਜ਼ੇ, ਆਡਿਟ ਨਿਯਮਾਂ, ਚੋਣਾਂ ਜਾਂ ਮੈਂਬਰ ਅਧਿਕਾਰਾਂ ਬਾਰੇ ਕੋਈ ਵੀ ਸਵਾਲ ਪੁੱਛੋ!",
+            "Odia": "ନମସ୍କାର! ବହୁଭାଷୀ ସମବାୟ ଶାସନ ଏବଂ ଆଇନଗତ ସହାୟତାକୁ ସ୍ୱାଗତ। PACS, KCC ଋଣ, ଅଡିଟ ନିୟମ, ନିର୍ବାଚନ କିମ୍ବା ସଦସ୍ୟଙ୍କ ଅଧିକାର ବିଷୟରେ ଯେକୌଣସି ପ୍ରଶ୍ନ ପଚାରନ୍ତୁ!",
+            "Assamese": "নমস্কাৰ! বহুভাষিক সমবায় প্ৰশাসন আৰু আইনী সহায়তালৈ স্বাগতম। PACS, KCC ঋণ, অডিট নিয়ম, নিৰ্বাচন বা সদস্যৰ অধিকাৰ সম্পৰ্কে যিকোনো প্ৰশ্ন সোধক!"
+        };
+
+        const VOICE_LANGUAGE_MAP = {
+            "English": "en-IN",
+            "Tamil": "ta-IN",
+            "Hindi": "hi-IN",
+            "Telugu": "te-IN",
+            "Malayalam": "ml-IN",
+            "Kannada": "kn-IN",
+            "Bengali": "bn-IN",
+            "Marathi": "mr-IN",
+            "Gujarati": "gu-IN",
+            "Punjabi": "pa-IN",
+            "Odia": "od-IN",
+            "Assamese": "as-IN"
+        };
+
+        // In-memory knowledge state
+        let activeKnowledge = Array.isArray(window.COOPERATIVE_KNOWLEDGE) ? window.COOPERATIVE_KNOWLEDGE : [];
+        let lastBotAnswer = "";
+        let recognition = null;
+        let isRecording = false;
+
+        // Fetch data.json if window.COOPERATIVE_KNOWLEDGE was not loaded
+        if (!activeKnowledge.length) {
+            fetch("data.json")
+                .then(res => res.json())
+                .then(data => {
+                    activeKnowledge = data;
+                    console.log("Loaded " + activeKnowledge.length + " legal records from data.json");
+                })
+                .catch(err => console.log("Static data.json fetch deferred:", err));
+        }
+
+        // DOM Elements
+        const languageSelect = document.getElementById("languageSelect");
+        const chatSubTitle = document.getElementById("chatSubTitle");
+        const welcomeMessage = document.getElementById("welcomeMessage");
+        const chatStream = document.getElementById("chatStream");
+        const chatInput = document.getElementById("chatInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const voiceBtn = document.getElementById("voiceBtn");
+        const chatStatusText = document.getElementById("chatStatusText");
+        const speakLastAnswerBtn = document.getElementById("speakLastAnswerBtn");
+        const clearChatBtn = document.getElementById("clearChatBtn");
+        const samplesContainer = document.getElementById("samplesContainer");
+        const sampleLangLabel = document.getElementById("sampleLangLabel");
+        const enquiryLanguage = document.getElementById("enquiryLanguage");
+        const geminiApiKeyInput = document.getElementById("geminiApiKeyInput");
+        const saveApiKeyBtn = document.getElementById("saveApiKeyBtn");
+
+        // Restore saved Gemini Key
+        const savedKey = sessionStorage.getItem("gemini_api_key");
+        if (savedKey) geminiApiKeyInput.value = savedKey;
+
+        saveApiKeyBtn.addEventListener("click", () => {
+            const key = geminiApiKeyInput.value.trim();
+            if (key) {
+                sessionStorage.setItem("gemini_api_key", key);
+                alert("Gemini API Key activated for live legal RAG!");
+            } else {
+                sessionStorage.removeItem("gemini_api_key");
+                alert("Gemini key cleared. Standard Knowledge Base active.");
+            }
+        });
+
+        // Text normalization & scoring (Port of Python backend logic)
+        function normalizeText(text) {
+            if (!text) return "";
+            return text.toString().toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()?]/g, "").trim();
+        }
+
+        function getWords(text) {
+            const normalized = normalizeText(text);
+            return normalized ? normalized.split(/\s+/) : [];
+        }
+
+        function calculateScore(userQuestion, storedQuestion, storedLanguage, selectedLanguage) {
+            const userText = normalizeText(userQuestion);
+            const storedText = normalizeText(storedQuestion);
+            if (!userText || !storedText) return 0;
+
+            let score = 0;
+            if (userText === storedText) score += 100;
+
+            const userWords = new Set(getWords(userText));
+            const storedWords = new Set(getWords(storedText));
+            let matchCount = 0;
+            userWords.forEach(w => {
+                if (storedWords.has(w)) matchCount++;
+            });
+            score += matchCount * 10;
+
+            IMPORTANT_KEYWORDS.forEach(kw => {
+                if (userText.includes(kw) && storedText.includes(kw)) {
+                    score += 20;
+                }
+            });
+
+            if (storedLanguage.trim().toLowerCase() === selectedLanguage.trim().toLowerCase()) {
+                score += 25;
+            }
+            return score;
+        }
+
+        function searchLocalKnowledge(userQuestion, language) {
+            if (!userQuestion || !userQuestion.trim()) {
+                return { answer: "Please enter your question.", category: "Prompt" };
+            }
+
+            const selectedLanguage = language.trim().toLowerCase();
+            const languageRecords = activeKnowledge.filter(item => 
+                (item.language || "").trim().toLowerCase() === selectedLanguage
+            );
+
+            if (!languageRecords.length) {
+                return {
+                    answer: `Sorry, no legal articles are registered in ${language} yet. Please try English or submit a formal enquiry.`,
+                    category: "General"
+                };
+            }
+
+            let bestItem = null;
+            let bestScore = 0;
+
+            for (const item of languageRecords) {
+                const score = calculateScore(userQuestion, item.question, item.language, language);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestItem = item;
+                }
+            }
+
+            if (bestItem && bestScore >= 40) {
+                return {
+                    answer: bestItem.answer,
+                    category: bestItem.category || "General",
+                    score: bestScore
+                };
+            }
+
+            return {
+                answer: `Sorry, I could not find a verified answer in ${language} for this specific query.
+
+Please check the suggested questions or submit an enquiry to the District Cooperative Registrar.`,
+                category: "Unresolved"
+            };
+        }
+
+        // Append message to chat stream
+        function appendMessage(text, sender, category = "") {
+            const bubble = document.createElement("div");
+            bubble.className = `message-bubble ${sender === 'user' ? 'user-bubble' : 'bot-bubble'}`;
+
+            const meta = document.createElement("div");
+            meta.className = "bubble-meta";
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            meta.textContent = sender === 'user' ? `👤 YOU • ${time}` : `🏛️ COOPERATIVE BOT • ${time}`;
+            bubble.appendChild(meta);
+
+            const content = document.createElement("div");
+            content.className = "bubble-content";
+
+            if (category && sender === 'bot') {
+                const catBadge = document.createElement("span");
+                catBadge.className = "category-badge";
+                catBadge.textContent = category;
+                content.appendChild(catBadge);
+                content.appendChild(document.createElement("br"));
+            }
+
+            const textSpan = document.createElement("span");
+            textSpan.textContent = text;
+            content.appendChild(textSpan);
+            bubble.appendChild(content);
+
+            if (sender === 'bot') {
+                const actions = document.createElement("div");
+                actions.className = "bubble-actions";
+
+                const copyBtn = document.createElement("button");
+                copyBtn.className = "action-chip";
+                copyBtn.textContent = "📋 Copy";
+                copyBtn.onclick = () => {
+                    navigator.clipboard.writeText(text);
+                    copyBtn.textContent = "✓ Copied";
+                    setTimeout(() => copyBtn.textContent = "📋 Copy", 1500);
+                };
+
+                const speakBtn = document.createElement("button");
+                speakBtn.className = "action-chip";
+                speakBtn.textContent = "🔊 Listen";
+                speakBtn.onclick = () => speakText(text, languageSelect.value);
+
+                actions.appendChild(copyBtn);
+                actions.appendChild(speakBtn);
+                bubble.appendChild(actions);
+            }
+
+            chatStream.appendChild(bubble);
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
+
+        // Text-to-speech
+        function speakText(text, language) {
+            if (!("speechSynthesis" in window)) {
+                chatStatusText.textContent = "Text-to-speech not supported in this browser.";
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = VOICE_LANGUAGE_MAP[language] || "en-IN";
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+            chatStatusText.textContent = `Speaking response in ${language}...`;
+        }
+
+        // Handle sending question
+        async function handleSend() {
+            const question = chatInput.value.trim();
+            const language = languageSelect.value;
+            if (!question) return;
+
+            appendMessage(question, "user");
+            chatInput.value = "";
+            sendBtn.disabled = true;
+            chatStatusText.textContent = "Retrieving legal answer...";
+
+            // 1. Try Gemini API if key is present
+            const geminiKey = sessionStorage.getItem("gemini_api_key");
+            if (geminiKey) {
+                try {
+                    const geminiPrompt = `You are a helpful Indian Cooperative Society and Legal assistant.
+Language to reply in: ${language}
+User Question: ${question}
+Provide an accurate, clear answer regarding Indian Cooperative Societies (PACS, KCC loans, MSCS Act, bye-laws, elections, auditing, member rights). Keep the explanation concise and practical.`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: geminiPrompt }] }] })
+                    });
+                    const data = await res.json();
+                    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+                        const aiAnswer = data.candidates[0].content.parts[0].text;
+                        appendMessage(aiAnswer, "bot", "Gemini 1.5 Legal AI");
+                        lastBotAnswer = aiAnswer;
+                        chatStatusText.textContent = "Answer generated via Gemini AI.";
+                        sendBtn.disabled = false;
+                        return;
+                    }
+                } catch (e) {
+                    console.log("Gemini API call error, falling back to knowledge base:", e);
+                }
+            }
+
+            // 2. Try Backend Flask endpoint
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                const resp = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question: question, language: language }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data?.answer) {
+                        appendMessage(data.answer, "bot", "Cooperative Registry");
+                        lastBotAnswer = data.answer;
+                        chatStatusText.textContent = "Answer retrieved from server.";
+                        sendBtn.disabled = false;
+                        return;
+                    }
+                }
+            } catch (err) {
+                // Fallback to client-side search seamlessly
+            }
+
+            // 3. Fallback to client-side RAG search engine
+            const match = searchLocalKnowledge(question, language);
+            appendMessage(match.answer, "bot", match.category);
+            lastBotAnswer = match.answer;
+            chatStatusText.textContent = match.score ? `Matched legal article (Score: ${match.score})` : "Ready";
+            sendBtn.disabled = false;
+        }
+
+        // Update UI when Language Changes
+        function handleLanguageChange() {
+            const lang = languageSelect.value;
+            chatSubTitle.textContent = `Selected Language: ${lang} | Powered by Indian Cooperative Law Database`;
+            welcomeMessage.textContent = WELCOME_MESSAGES[lang] || WELCOME_MESSAGES["English"];
+            enquiryLanguage.value = lang;
+            sampleLangLabel.textContent = lang;
+
+            chatInput.placeholder = lang === "Tamil"
+                ? "உங்கள் கூட்டுறவு கேள்வியை தட்டச்சு செய்யவும்..."
+                : lang === "Hindi"
+                ? "अपना सहकारी संबंधी प्रश्न यहां लिखें..."
+                : "Type your question here (e.g. What is PACS?)...";
+
+            // Populate sample question buttons
+            samplesContainer.innerHTML = "";
+            const samples = SAMPLE_QUESTIONS[lang] || SAMPLE_QUESTIONS["English"] || [];
+            samples.forEach(item => {
+                const chip = document.createElement("button");
+                chip.type = "button";
+                chip.className = "sample-chip";
+                chip.innerHTML = `<span class="sample-tag">${item.category || 'General'}</span><span>${item.question}</span>`;
+                chip.onclick = () => {
+                    chatInput.value = item.question;
+                    handleSend();
+                };
+                samplesContainer.appendChild(chip);
+            });
+
+            chatStatusText.textContent = `Language switched to ${lang}.`;
+        }
+
+        // Voice Recognition (Speech-to-Text)
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRec) {
+            recognition = new SpeechRec();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                voiceBtn.classList.add("recording");
+                voiceBtn.innerHTML = "⏹ Listening...";
+                chatStatusText.textContent = "Listening to your voice...";
+            };
+
+            recognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                chatInput.value = transcript;
+                chatStatusText.textContent = "Voice captured. Sending question...";
+                handleSend();
+            };
+
+            recognition.onerror = (e) => {
+                console.error("Speech error:", e.error);
+                chatStatusText.textContent = `Voice recognition error: ${e.error}`;
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                voiceBtn.classList.remove("recording");
+                voiceBtn.innerHTML = "🎤 Voice";
+            };
+
+            voiceBtn.onclick = () => {
+                recognition.lang = VOICE_LANGUAGE_MAP[languageSelect.value] || "en-IN";
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            };
+        } else {
+            voiceBtn.disabled = true;
+            voiceBtn.title = "Speech recognition not supported in this browser";
+        }
+
+        // Event listeners
+        sendBtn.addEventListener("click", handleSend);
+        chatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        languageSelect.addEventListener("change", handleLanguageChange);
+
+        speakLastAnswerBtn.addEventListener("click", () => {
+            if (!lastBotAnswer) {
+                chatStatusText.textContent = "No answer available to read aloud.";
+                return;
+            }
+            speakText(lastBotAnswer, languageSelect.value);
+        });
+
+        clearChatBtn.addEventListener("click", () => {
+            chatStream.innerHTML = "";
+            appendMessage(WELCOME_MESSAGES[languageSelect.value] || WELCOME_MESSAGES["English"], "bot", "Welcome");
+            lastBotAnswer = "";
+            chatStatusText.textContent = "Chat history cleared.";
+        });
+
+        // Enquiry Submission
+        document.getElementById("enquiryForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("enquiryName").value.trim();
+            const lang = document.getElementById("enquiryLanguage").value;
+            const question = document.getElementById("enquiryQuestion").value.trim();
+            const resultBox = document.getElementById("enquiryResultBox");
+
+            resultBox.className = "result-container result-success";
+            resultBox.style.display = "block";
+
+            // Generate Enquiry Code
+            const genId = "ENQ-2026-" + Math.floor(1000 + Math.random() * 9000);
+
+            // Save to localStorage
+            const stored = JSON.parse(localStorage.getItem("cooperative_enquiries") || "[]");
+            const newEntry = {
+                id: genId,
+                name: name || "Anonymous Member",
+                language: lang,
+                question: question,
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString(),
+                status: "Received & Under Review by PACS Registrar"
+            };
+            stored.unshift(newEntry);
+            localStorage.setItem("cooperative_enquiries", JSON.stringify(stored));
+
+            // Optional post to server if live
+            fetch("/enquiry", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: name, language: lang, question: question })
+            }).catch(() => {});
+
+            resultBox.innerHTML = `
+                <strong>✅ Enquiry Registered Successfully!</strong><br>
+                <span>Tracking ID: <strong style="font-size:16px; color:#1e40af;">${genId}</strong></span><br>
+                <small>Keep this ID to monitor resolution progress under the "Track Enquiry Status" section below.</small>
+            `;
+            document.getElementById("enquiryQuestion").value = "";
+        });
+
+        // Track Status
+        document.getElementById("trackBtn").addEventListener("click", () => {
+            const queryId = document.getElementById("trackInput").value.trim().toUpperCase();
+            const resultBox = document.getElementById("trackResultBox");
+            const details = document.getElementById("trackResultDetails");
+
+            if (!queryId) {
+                resultBox.className = "result-container result-error";
+                resultBox.style.display = "block";
+                details.innerHTML = "Please enter an Enquiry ID to track.";
+                return;
+            }
+
+            const stored = JSON.parse(localStorage.getItem("cooperative_enquiries") || "[]");
+            const match = stored.find(item => item.id.toUpperCase() === queryId || item.id.replace(/\D/g, "") === queryId.replace(/\D/g, ""));
+
+            resultBox.className = "result-container result-success";
+            resultBox.style.display = "block";
+
+            if (match) {
+                details.innerHTML = `
+                    <div style="margin-bottom:12px;">
+                        <strong>Enquiry #${match.id}</strong> &bull; Submitted on ${match.date}<br>
+                        <strong>Member:</strong> ${match.name} (${match.language})<br>
+                        <strong>Question:</strong> ${match.question}<br>
+                        <strong>Current Status:</strong> <span style="color:#059669; font-weight:700;">${match.status}</span>
+                    </div>
+                `;
+            } else {
+                details.innerHTML = `
+                    <div style="margin-bottom:12px;">
+                        <strong>Enquiry #${queryId}</strong><br>
+                        <strong>Status:</strong> <span style="color:#2563eb; font-weight:700;">Formal Registration In Progress</span><br>
+                        <small>Submitted to District Cooperative Registrar. Record will be updated within 24 working hours.</small>
+                    </div>
+                `;
+            }
+        });
+
+        // Admin Modal
+        const adminModal = document.getElementById("adminModal");
+        document.getElementById("openAdminModalBtn").addEventListener("click", () => {
+            const listContainer = document.getElementById("adminEnquiryList");
+            const stored = JSON.parse(localStorage.getItem("cooperative_enquiries") || "[]");
+
+            if (!stored.length) {
+                listContainer.innerHTML = "<p style='color:#64748b;'>No enquiries submitted in this browser yet. Use the Submit Grievance form above to test!</p>";
+            } else {
+                listContainer.innerHTML = stored.map(e => `
+                    <div style="padding:12px; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc;">
+                        <div style="display:flex; justify-content:space-between; font-weight:700; color:#1e40af;">
+                            <span>${e.id}</span>
+                            <span style="font-size:12px; color:#64748b;">${e.date}</span>
+                        </div>
+                        <div style="font-size:13px; margin:4px 0;"><strong>${e.name}</strong> (${e.language}): ${e.question}</div>
+                        <div style="font-size:12px; color:#059669; font-weight:600;">Status: ${e.status}</div>
+                    </div>
+                `).join("");
+            }
+            adminModal.style.display = "flex";
+        });
+
+        document.getElementById("closeAdminModalBtn").addEventListener("click", () => {
+            adminModal.style.display = "none";
+        });
+
+        adminModal.addEventListener("click", (e) => {
+            if (e.target === adminModal) adminModal.style.display = "none";
+        });
+
+        // Initialize default view
+        handleLanguageChange();
+    </script>
+</body>
+</html>
